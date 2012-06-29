@@ -6,10 +6,12 @@ var table = [
     { "sp": "sprite-wrong",    "msg": "No, not coming out." }
 ];
 
+var logger;
+
 function change_state(div)
 {
     var d = div.id;
-    console.log("ClientID: " + d);
+    logger("ClientID: " + d);
     if (map[d] === undefined) {
         map[d] = 0;
     }
@@ -36,20 +38,29 @@ function run_init()
 {
     var tbl, rows, divs, div;
 
+    if ('console' in self && 'log' in console)
+    {
+        logger = function(msg) { console.log(msg); };
+    }
+    else
+    {
+        logger = function(msg) { };
+    }
+
     tbl = document.getElementById("users");
 
     divs = tbl.getElementsByTagName("div");
     for (var i=0; i < divs.length; i++)
     {
         div = divs[i];
-        console.log("div.name " + div.attributes["name"]);
+        logger("div.name " + div.attributes["name"]);
         div.onclick = change_item;
         div.id = "state_" + i;
         change_state(div);
     }
 
     rows = document.getElementsByTagName("tr");
-    console.log(rows.length);
+    logger(rows.length);
 }
 
 window.onload = function()

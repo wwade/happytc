@@ -9,6 +9,7 @@ var table = [
 function change_state(div)
 {
     var d = div.id;
+    console.log("ClientID: " + d);
     if (map[d] === undefined) {
         map[d] = 0;
     }
@@ -20,24 +21,34 @@ function change_state(div)
         map[d] += 1;
 }
 
-function change_item(evt)
+function change_item(e)
 {
-    change_state(evt.target);
+    var targ;
+    if (!e) var e = window.event;
+    if (e.target) targ = e.target;
+    else if (e.srcElement) targ = e.srcElement;
+    if (targ.nodeType == 3) // defeat Safari bug
+        targ = targ.parentNode;
+    change_state(targ);
 }
 
 function run_init()
 {
-    var divs, rows;
+    var tbl, rows, divs, div;
 
-    divs = document.getElementsByName("player");
+    tbl = document.getElementById("users");
+
+    divs = tbl.getElementsByTagName("div");
     for (var i=0; i < divs.length; i++)
     {
-        divs[i].onclick = change_item;
-        divs[i].id = "state_" + i;
-        change_state(divs[i]);
+        div = divs[i];
+        console.log("div.name " + div.attributes["name"]);
+        div.onclick = change_item;
+        div.id = "state_" + i;
+        change_state(div);
     }
 
-    rows = document.getElementsByClassName("users");
+    rows = document.getElementsByTagName("tr");
     console.log(rows.length);
 }
 

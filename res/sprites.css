@@ -9,33 +9,6 @@
 .sprite-settings{ background-position: 0 -272px; width: 16px; height: 16px; }
 .sprite-user{ background-position: 0 -306px; width: 16px; height: 16px; }
 .sprite-wrong{ background-position: 0 -340px; width: 16px; height: 16px; }
-
-#users td, #users th {
-    border: 2px inset;
-    padding-left: 2em;
-    padding-right: 2em;
-    /* border-color: rgb(153, 153, 153); */
-}
-#users th {
-    background-color: rgb(250, 250, 250);
-}
-
-#users {
-    border-collapse: collapse;
-}
-
-td.playername {
-    font-weight: bold;
-}
-
-tr.even {
-    background-color: rgb(250, 250, 250);
-}
-
-tr.odd {
-    background-color: rgb(232, 232, 232);
-}
-
 .sprites {
     background-image: url(sprites.png);
     background-color: transparent;

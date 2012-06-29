@@ -1,0 +1,29 @@
+#users td, #users th {
+    padding-left: 2em;
+    padding-right: 2em;
+}
+#users tbody, #users td, #users th {
+    border: 2px inset;
+    border-color: rgb(153, 153, 153);
+}
+
+#users th {
+    background-color: rgb(250, 250, 250);
+}
+
+#users {
+    border-collapse: collapse;
+}
+
+td.playername {
+    font-weight: bold;
+}
+
+tr.even {
+    background-color: rgb(250, 250, 250);
+}
+
+tr.odd {
+    background-color: rgb(232, 232, 232);
+}
+

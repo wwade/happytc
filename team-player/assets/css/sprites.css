@@ -18,3 +18,13 @@
     margin-left: auto;
     margin-right: auto;
 }
+
+.gender-f{ background-position: 0 0; width: 16px; height: 16px; } 
+.gender-m{ background-position: 0 -34px; width: 16px; height: 16px; } 
+.gender {
+    background-image: url(../img/mf.png);
+    background-color: transparent;
+    background-repeat: no-repeat;
+    width: 16px;
+    height: 16px;
+}

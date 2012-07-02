@@ -33,6 +33,21 @@ class TeamHandler(webapp2.RequestHandler):
 
         gr_q  = models.GameResponse.all()
         gr_q.filter("game = ", game)
+
+        male = {}
+        female = {}
+        for gr in gr_q:
+            if gr.player.is_male():
+                if not male.has_key(gr.status):
+                    male[gr.status] = 0
+                male[gr.status] = male[gr.status] + 1
+            else:
+                if not female.has_key(gr.status):
+                    female[gr.status] = 0
+                female[gr.status] = female[gr.status] + 1
+
+        gr_q  = models.GameResponse.all()
+        gr_q.filter("game = ", game)
         gr_q.filter("player = ", tp.player)
         gmr = gr_q.get()
         if gmr == None:
@@ -49,7 +64,10 @@ class TeamHandler(webapp2.RequestHandler):
         resp = {
             "status": 0,
             "val": val,
-            "since": "updated " + when.strftime("%x %X")
+            "since": "updated " + when.strftime("%x %X"),
+            "gameid": game.key().id(),
+            "male": male,
+            "female": female,
         }
         self.response.out.write(json.dumps(resp))
 
@@ -73,13 +91,17 @@ class TeamHandler(webapp2.RequestHandler):
 
         for game in games:
             st = tz.from_utc(game.start)
-            val = st.strftime("%a, %B ") + str(st.day)
-            g = { "t": val }
+            val = st.strftime("%a, %b ") + str(st.day)
+            g = { 
+                "t": val,
+                "id": game.key().id(),
+            }
             if (len(game.info) > 0):
                 g["i"] = game.info
             gamedates.append(g)
 
-        players = []
+        girls = []
+        guys = []
         first = True
         for pk in tp.team.players:
             pl = models.Player.get(pk)
@@ -92,7 +114,11 @@ class TeamHandler(webapp2.RequestHandler):
             games.filter("team = ", tp.team)
             games.order("start")
 
-            row = {"obj": pl, "active": active, }
+            row = {
+                "obj": pl,
+                "active": active,
+                "male": pl.is_male(),
+            }
             row_games = []
             idx = 0
             for game in games:
@@ -112,7 +138,10 @@ class TeamHandler(webapp2.RequestHandler):
                 idx = idx + 1
                 row_games.append(gmr)
             row["games"] = row_games
-            players.append(row)
+            if pl.is_male():
+                guys.append(row)
+            else:
+                girls.append(row)
 
 
         path = config.view_path("team.html")
@@ -121,7 +150,7 @@ class TeamHandler(webapp2.RequestHandler):
                 "title2": "Game Schedule (%s)" % tp.player.name,
                 "team": tp.team.name,
                 "games": gamedates,
-                "players": players,
+                "players": girls + guys,
                 "spares": tp.team.spares,
                 "token": token,
             }))

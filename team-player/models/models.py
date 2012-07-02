@@ -16,6 +16,24 @@ class User(polymodel.PolyModel):
 
     phone = db.ListProperty(db.PhoneNumber)
 
+    def gender_fmt(self):
+        if len(self.gender)> 0:
+            return self.gender[0].lower()
+        else:
+            return ""
+
+    def is_male(self):
+        if self.gender_fmt()[0] == "m":
+            return True
+        else:
+            return False
+
+    def is_female(self):
+        if self.gender_fmt()[0] == "f":
+            return True
+        else:
+            return False
+
 class Player(User):
     pass
 

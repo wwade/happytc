@@ -8,17 +8,24 @@
                 <tr>
                     <th></th>
                     {% for gm in games %}
-                        <th>
-                            {{gm.t}}
-                            {% if gm.i %}<br/>{{ gm.i }}{% endif %} 
+                        <th id="game{{gm.id}}">
+                            <div class="gameday">{{gm.t}}</div>
+                            {% if gm.i %}<div class="gameinfo">{{ gm.i }}</div>{% endif %}
+                            <div>
+                                <div class="mf gender gender-m"><div class="genderinfo">abc</div></div>
+                                <div class="mf gender gender-f"><div class="genderinfo">def</span></div>
+                            </div>
                         </th>
                     {% endfor %}
                 </tr>
                 {% for  pl in players %}
                     <tr {% if pl.active %}id="activeplayer" class="activeplayer"{% endif %}>
-                        <td class={% if pl.active %}"active"{% else %}"player" {% endif %}>{{pl.obj.name}}</td>
+                        <td class="player{% if pl.active %} active{% endif %}">
+                            <span class="playername">{{pl.obj.name}}</span>
+                            <div class="playericon gender gender-{% if pl.male %}m{% else %}f{% endif %}"></div>
+                        </td>
                         {% for gm in pl.games %}<td>
-                            <div id="status{{gm.id}}" class="sprites sprite-alert">
+                            <div class="player" id="status{{gm.id}}">
                                 <input type="hidden" value="{{gm.v}}"></input>
                                 <input type="hidden" value="{{gm.t}}"></input>
                             </div>

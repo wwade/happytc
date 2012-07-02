@@ -37,7 +37,7 @@ function set_div(div, val)
         div.title = table[val]["msg"] + " - " + tm;
     else
         div.title = table[val]["msg"];
-    div.className = "sprites " + table[val]["sp"];
+    div.className = "player sprites " + table[val]["sp"];
 }
 
 function init_div(div)
@@ -114,12 +114,16 @@ function run_init()
         logger = function(msg) { };
     }
 
-    $("#users div").each(function(didx) {
-        logger("div.name " + this.attributes["name"]);
-        init_div(this);
+    $("#users tr").children("td").children("div").each(function(idx)
+    {
+        if ($(this).hasClass("player"))
+        {
+            logger("div.name " + this.attributes["name"]);
+            init_div(this);
+        }
     });
 
-    $("#activeplayer div").each(function(didx) {
+    $("#activeplayer div").each(function(idx) {
         this.onclick = change_item;
     });
 

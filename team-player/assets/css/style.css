@@ -1,6 +1,18 @@
+div.gameday {
+    font-size: 150%;
+    white-space: nowrap;
+}
+
+div.mf {
+    padding-bottom: 2px;
+}
+span.mf {
+    margin: auto;
+}
+
 #users td, #users th {
-    padding-left: 2em;
-    padding-right: 2em;
+    padding-left: 1em;
+    padding-right: 1em;
 }
 #users tbody, #users td, #users th {
     border: 2px inset;
@@ -15,11 +27,26 @@
     border-collapse: collapse;
 }
 
+td.player {
+    white-space: nowrap;
+}
+
 tr.activeplayer, td.active {
     background-color: rgb(232, 232, 0);
 }
 td.active {
     font-weight: bold;
+}
+
+.playername {
+    float: left;
+    padding-right: 1.5em;
+}
+.playericon {
+    margin-left: auto;
+}
+.genderinfo {
+    padding-left: 18px;
 }
 
 tr {

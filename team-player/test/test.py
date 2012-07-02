@@ -89,6 +89,16 @@ def populate(obj):
         { "d": [ 2012,  7, 17 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
         { "d": [ 2012,  7, 24 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
         { "d": [ 2012,  7, 31 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  8,  3 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  8, 10 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  8, 17 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  8, 24 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  8, 31 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  9,  3 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  9, 10 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  9, 17 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  9, 24 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  9, 30 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
     ]
 
 

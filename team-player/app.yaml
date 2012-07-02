@@ -21,7 +21,7 @@ handlers:
 
 - url: /admin/.*
   script: main.app
-  login: required
+  login: admin
 
 - url: .*
   script: main.app

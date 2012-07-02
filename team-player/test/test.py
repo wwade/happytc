@@ -3,7 +3,7 @@ from models import models
 from google.appengine.api import mail
 from google.appengine.api.users import User
 from google.appengine.ext import db
-from urllib import unquote
+from urllib import quote
 
 _obj = None
 
@@ -149,7 +149,8 @@ def get_links(obj):
                 tp = models.TeamPlayer(team=t, player=player)
                 tp.set_uri_id()
                 tp.put()
-            html("<td>%s</td><td>%s</td><td><a href=\"/team/%s\">%s</a></td>" %
-                 (t.name, player.name, tp.uri_id, tp.uri_id))
+            link = "/team/" + quote(t.name) + "/" + tp.uri_id;
+            html("<td>%s</td><td>%s</td><td><a href=\"%s\">%s</a></td>" %
+                 (t.name, player.name, link, tp.uri_id))
             html("</tr>")
     html("</table>")

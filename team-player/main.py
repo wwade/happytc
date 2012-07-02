@@ -27,6 +27,6 @@ import webapp2
 
 app = webapp2.WSGIApplication([                        
     ('/', mainh.MainHandler),                                 
-    ('/team/(.*)', team.TeamHandler),
+    ('/team/(.*)/(.*)', team.TeamHandler),
     ('/admin/(.*)', mainh.AdminHandler),
     ],debug=True)                                                 

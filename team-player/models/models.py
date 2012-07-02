@@ -61,7 +61,7 @@ class TeamPlayer(db.Model):
         det = Salt
         det = det + str(team.key()) 
         det = det + str(player.key())
-        stval = team.name + "_" + str_hash(det).hexdigest()
+        stval = str_hash(det).hexdigest()
         return quote(stval)
 
 class Game(db.Model):

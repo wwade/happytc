@@ -12,7 +12,6 @@ class MainHandler(webapp2.RequestHandler):
         path = config.view_path("index.html")
         self.response.out.write(template.render(path, config.render_default({
             "title2": "Login Page",
-            "team": "Chronic Injury",
         })))
 
 class AdminHandler(webapp2.RequestHandler):
@@ -25,5 +24,4 @@ class AdminHandler(webapp2.RequestHandler):
         path = config.view_path("admin.html")
         self.response.out.write(template.render(path, config.render_default({
             "title2": "Admin",
-            "team": "Chronic Injury",
         })))

@@ -1,0 +1,32 @@
+{% extends "generic.html" %}
+
+{% block content %}
+    <div class="team-schedule">
+        <form><input id="teamtoken" type="hidden" value="{{token}}"></input>
+        <table id="users">
+            <tbody>
+                <tr>
+                    <th></th>
+                    {% for gm in games %}
+                        <th>
+                            {{gm.t}}
+                            {% if gm.i %}<br/>{{ gm.i }}{% endif %} 
+                        </th>
+                    {% endfor %}
+                </tr>
+                {% for  pl in players %}
+                    <tr {% if pl.active %}id="activeplayer" class="activeplayer"{% endif %}>
+                        <td class={% if pl.active %}"active"{% else %}"player" {% endif %}>{{pl.obj.name}}</td>
+                        {% for gm in pl.games %}<td>
+                            <div id="status{{gm.id}}" class="sprites sprite-alert">
+                                <input type="hidden" value="{{gm.v}}"></input>
+                                <input type="hidden" value="{{gm.t}}"></input>
+                            </div>
+                        </td>{% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </form>
+    </div>
+{% endblock %}

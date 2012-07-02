@@ -1,26 +1,86 @@
-var map = new Object();
 var table = [
-    { "sp": "sprite-ellipsis", "msg": "awaiting response" },
-    { "sp": "sprite-correct",  "msg": "I'm in!" },
-    { "sp": "sprite-question", "msg": "Not sure yet.  I'll let you know soon." },
-    { "sp": "sprite-wrong",    "msg": "No, not coming out." }
+    { "sp": "sprite-none",  "msg": "awaiting response" },
+    { "sp": "sprite-yes",   "msg": "Yes" },
+    { "sp": "sprite-maybe", "msg": "Not sure" },
+    { "sp": "sprite-no",    "msg": "No" },
 ];
 
 var logger;
 
+function get_val(div)
+{
+    var val;
+
+    try {
+        val = parseInt(div.childNodes[0].value);
+    } catch(err) {
+        val = 0;
+        div.childNodes[0].value = "" + val;
+    }
+
+    if (val >= table.length)
+        val = 0;
+
+    return val;
+}
+
+function set_div(div, val)
+{
+    var tm;
+    try {
+        tm = div.childNodes[1].value;
+    } catch (e) {
+        tm = "";
+    }
+
+    if (tm.length > 0)
+        div.title = table[val]["msg"] + " - " + tm;
+    else
+        div.title = table[val]["msg"];
+    div.className = "sprites " + table[val]["sp"];
+}
+
+function init_div(div)
+{
+    set_div(div, get_val(div));
+}
+
 function change_state(div)
 {
-    var d = div.id;
-    logger("ClientID: " + d);
-    if (map[d] === undefined) {
-        map[d] = 0;
-    }
-    div.title = table[map[d]]["msg"];
-    div.className = "sprites " + table[map[d]]["sp"];
-    if (map[d] == table.length - 1)
-        map[d] = 0;
+    var val;
+    var reg;
+    var match;
+    var url;
+    var json;
+    var gmid;
+
+    val = get_val(div);
+
+    if (val == table.length - 1)
+        val = 0;
     else
-        map[d] += 1;
+        val += 1;
+
+    if (val == 0)
+        val = 1;
+
+    gmid = parseInt(/status(\d+)/.exec(div.id)[1]);
+
+    json = { "val": val, "id": gmid };
+
+    $.post(window.location.pathname, json,
+           function(data) {
+               var resp = jQuery.parseJSON(data);
+               div.childNodes[0].value = val;
+               if (resp.status != 0) {
+                   $("#error")[0].innerHTML = "error " + resp.status + resp.ctx;
+               } else {
+                   div.childNodes[1].value = resp.since;
+                   $("#error")[0].innerHTML = "";
+               }
+               set_div(div, val);
+           }
+    );
 }
 
 function change_item(e)
@@ -46,7 +106,7 @@ function run_init()
     if ('console' in self && 'log' in console)
     {
         logger = function(msg) {
-            //console.log(msg);
+            // console.log(msg);
         };
     }
     else
@@ -54,17 +114,14 @@ function run_init()
         logger = function(msg) { };
     }
 
-    tbl = document.getElementById("users");
+    $("#users div").each(function(didx) {
+        logger("div.name " + this.attributes["name"]);
+        init_div(this);
+    });
 
-    divs = tbl.getElementsByTagName("div");
-    for (var i=0; i < divs.length; i++)
-    {
-        div = divs[i];
-        logger("div.name " + div.attributes["name"]);
-        div.onclick = change_item;
-        div.id = "state_" + i;
-        change_state(div);
-    }
+    $("#activeplayer div").each(function(didx) {
+        this.onclick = change_item;
+    });
 
     rows = document.getElementsByTagName("tr");
     logger(rows.length);

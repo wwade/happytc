@@ -9,6 +9,7 @@ Salt = "xy1zzzz"
 
 class User(polymodel.PolyModel):
     since = db.DateTimeProperty(auto_now_add=True)
+    gender  = db.StringProperty(required=True)
     name = db.StringProperty(required=True)
     user = db.UserProperty()
     mail = db.EmailProperty()
@@ -67,4 +68,11 @@ class TeamPlayer(db.Model):
 class Game(db.Model):
     start = db.DateTimeProperty(required=True)
     end = db.DateTimeProperty(required=True)
-    vs = db.StringProperty()
+    team = db.ReferenceProperty(Team, required=True)
+    info = db.StringProperty()
+
+class GameResponse(db.Model):
+    when = db.DateTimeProperty(auto_now=True)
+    player = db.ReferenceProperty(Player, required=True)
+    game = db.ReferenceProperty(Game, required=True)
+    status = db.IntegerProperty(required=True)

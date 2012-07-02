@@ -15,10 +15,10 @@
     border-collapse: collapse;
 }
 
-tr.activeplayer, td.activeplayer {
+tr.activeplayer, td.active {
     background-color: rgb(232, 232, 0);
 }
-td.activeplayer {
+td.active {
     font-weight: bold;
 }
 
@@ -29,4 +29,3 @@ tr {
 tr.odd {
     background-color: rgb(232, 232, 232);
 }
-

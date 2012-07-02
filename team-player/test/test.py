@@ -1,5 +1,8 @@
 from models import models
+from models import tz
 
+from datetime import datetime
+from datetime import timedelta
 from google.appengine.api import mail
 from google.appengine.api.users import User
 from google.appengine.ext import db
@@ -35,48 +38,59 @@ def populate(obj):
     WADE = "wade.carpenter@gmail.com"
     CHER = "cherchoi@gmail.com"
     admins = [
-        ["Wade Carpenter", WADE, ["+1-604-788-5894"]],
-        ["Cher Choi", CHER, ["+1-604-833-2437", "+1-604-395-5293"]],
+        ["M", "Wade Carpenter", WADE, ["+1-604-788-5894"]],
+        ["F", "Cher Choi", CHER, ["+1-604-833-2437", "+1-604-395-5293"]],
     ]
     players = [
-        ["Non Admin", "wcarpenter@fortinet.com", ["+1-604-420-1297 x 6912"]],
-        ["Other One", "wade.carpenter+1@gmail.com",[]],
-        ["Other Two", "wade.carpenter+2@gmail.com",[]],
-        ["Other Three", "wade.carpenter+3@gmail.com",[]],
+        ["M", "Non Admin", "wcarpenter@fortinet.com", ["+1-604-420-1297 x 6912"]],
+        ["M", "Guy One", "wade.carpenter+1@gmail.com",[]],
+        ["M", "Guy Two", "wade.carpenter+2@gmail.com",[]],
+        ["F", "Girl One", "wade.carpenter+3@gmail.com",[]],
+        ["F", "Girl Two", "wade.carpenter+4@gmail.com",[]],
     ]
 
     # Add Admins
     for a in admins:
         ph = []
-        for p in a[2]:
+        for p in a[3]:
             ph.append(db.PhoneNumber(p))
         q = models.Admin.all()
-        q.filter("name =",a[0])
-        q.filter("user =",User(a[1]))
+        q.filter("name =",a[1])
+        q.filter("user =",User(a[2]))
         admin = q.get()
         if admin == None:
-            admin = models.Admin(name=a[0], user=User(a[1]), phone=ph)
+            admin = models.Admin(gender=a[0], name=a[1], user=User(a[2]), phone=ph)
             log("Added admin: %s" % repr(a))
         else:
             log("Admin already exists: %s" % repr(a))
-        admin.mail = a[1]
+        admin.mail = a[2]
         admin.put()
 
 
     # Add Regular Players
     for a in players:
         ph = []
-        for p in a[2]:
+        for p in a[3]:
             ph.append(db.PhoneNumber(p))
         q = models.Player.all()
-        q.filter("name =",a[0])
-        q.filter("mail =",a[1])
+        q.filter("name =",a[1])
+        q.filter("mail =",a[2])
         if q.get() == None:
-            pl = models.Player(name=a[0], mail=a[1], phone=ph)
+            pl = models.Player(gender=a[0], name=a[1], mail=a[2], phone=ph)
             pl.put()
             log("Added player: %s" % repr(a))
         else:
             log("Player already exists: %s" % repr(a))
+
+    # Add games (to all teams)
+    games = [
+        { "d": [ 2012,  7,  3 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  7, 10 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  7, 17 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  7, 24 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  7, 31 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+    ]
+
 
     # Add Teams
     teams = [
@@ -101,6 +115,20 @@ def populate(obj):
             team = models.Team(name=t[1], owner=owner)
             team.put()
 
+        for game in games:
+            tm = datetime.strptime(game["t"], "%I:%M %p")
+            dt = datetime(game["d"][0], game["d"][1], game["d"][2], tm.hour, tm.minute)
+            dt = tz.to_utc(dt)
+            dt_end = dt + timedelta(minutes=game["dur"])
+            log("%s - %s" % (str(dt), str(dt_end)))
+            g_q = models.Game.all()
+            g_q.filter("team = ", team)
+            g_q.filter("start = ", dt)
+            g_q.filter("end = ", dt_end)
+            if g_q.get() == None:
+                g = models.Game(start=dt, end=dt_end, team=team, info=game["info"])
+                g.put()
+
         if team != None:
             if owner.own_teams == None:
                 owner.own_teams = []
@@ -121,9 +149,9 @@ def populate(obj):
                     auser.put()
 
                 for u in admins:
-                    add_player_by_mail(team, u[1])
+                    add_player_by_mail(team, u[2])
                 for u in players:
-                    add_player_by_mail(team, u[1])
+                    add_player_by_mail(team, u[2])
 
             team.put()
             log("Added/updated team %s [owner %s <%s>]" % (t[1], owner.name, owner.user.email()))

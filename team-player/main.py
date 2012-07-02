@@ -3,7 +3,7 @@
 # Importing the controllers that will handle                      
 # the generation of the pages:                                    
 #from controllers import crons,ajax,generate,mainh                 
-from controllers import mainh
+from controllers import mainh, team
 
 # Importing some of Google's AppEngine modules:                   
 import webapp2
@@ -27,5 +27,6 @@ import webapp2
 
 app = webapp2.WSGIApplication([                        
     ('/', mainh.MainHandler),                                 
+    ('/team/(.*)', team.TeamHandler),
     ('/admin/(.*)', mainh.AdminHandler),
     ],debug=True)                                                 

@@ -38,7 +38,10 @@ function run_init()
 {
     var tbl, rows, divs, div;
 
-    $ ('#users tr:odd').addClass("odd");
+    $('#users tr:odd').each(function(ridx) {
+        if (!$(this).hasClass("activeplayer"))
+            $(this).addClass("odd");
+    });
 
     if ('console' in self && 'log' in console)
     {

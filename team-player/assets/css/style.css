@@ -15,7 +15,10 @@
     border-collapse: collapse;
 }
 
-td.playername {
+tr.activeplayer, td.activeplayer {
+    background-color: rgb(232, 232, 0);
+}
+td.activeplayer {
     font-weight: bold;
 }
 

@@ -1,5 +1,5 @@
 application: team-player
-version: 1
+version: 1-1
 runtime: python27
 api_version: 1
 threadsafe: true
@@ -19,7 +19,7 @@ handlers:
   static_files: assets/img/favicon.ico
   upload: assets/img/favicon.ico
 
-- url: /admin.*
+- url: /admin/.*
   script: main.app
   login: required
 

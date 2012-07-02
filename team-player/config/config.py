@@ -13,6 +13,7 @@
 #					is going to be searched in the
 #					fetched page.
 
+import os
 from datetime import datetime
 from google.appengine.api import users
 
@@ -33,3 +34,6 @@ def render_default(d_in=None):
         if not d_in.has_key(k):
             d_in[k] = mapper[k]
     return d_in
+
+def view_path(filename):
+    return os.path.join(os.path.dirname(__file__), '../views', filename)

@@ -63,6 +63,8 @@ def populate(obj):
             log("Added admin: %s" % repr(a))
         else:
             log("Admin already exists: %s" % repr(a))
+            admin.refresh()
+        admin.gender = a[0]
         admin.mail = a[2]
         admin.put()
 
@@ -84,7 +86,12 @@ def populate(obj):
 
     # Add games (to all teams)
     games = [
-        { "d": [ 2012,  7,  3 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  6,  2 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  6,  9 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  6, 16 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  6, 23 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  6, 30 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
+        { "d": [ 2012,  7,  3 ], "t": "6:00 PM", "dur": 180, "info": "MyInfo for game" },
         { "d": [ 2012,  7, 10 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
         { "d": [ 2012,  7, 17 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
         { "d": [ 2012,  7, 24 ], "t": "6:00 PM", "dur": 180, "info": "Info for game" },
@@ -135,9 +142,12 @@ def populate(obj):
             g_q.filter("team = ", team)
             g_q.filter("start = ", dt)
             g_q.filter("end = ", dt_end)
-            if g_q.get() == None:
-                g = models.Game(start=dt, end=dt_end, team=team, info=game["info"])
-                g.put()
+            gobj = g_q.get()
+            if gobj == None:
+                gobj = models.Game(start=dt, end=dt_end, team=team, info=game["info"])
+            else:
+                gobj.info=game["info"]
+            gobj.put()
 
         if team != None:
             if owner.own_teams == None:

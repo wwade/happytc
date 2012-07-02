@@ -5,6 +5,8 @@ from google.appengine.ext.db import polymodel
 from urllib import quote
 from hashlib import md5 as str_hash
 
+from google.appengine.api import memcache
+
 Salt = "xy1zzzz"
 
 class User(polymodel.PolyModel):
@@ -35,7 +37,21 @@ class User(polymodel.PolyModel):
             return False
 
 class Player(User):
-    pass
+    @staticmethod
+    def find_by_key(k):
+#         mkey = "Player"+str(k)
+#         p = memcache.get(mkey)
+#         if p != None:
+#             return p
+        p = Player.get(k)
+#         if p != None:
+#             memcache.add(mkey, p)
+        return p
+
+    def refresh(self):
+        mkey = "Player" + str(self.key())
+        memcache.delete(mkey)
+
 
 class Admin(Player, User):
     admin_teams = db.ListProperty(db.Key)
@@ -66,10 +82,14 @@ class TeamPlayer(db.Model):
 
     @staticmethod
     def find_raw(uri_id):
+        tp = memcache.get("tp" + uri_id)
+        if tp != None:
+            return tp
         tp = TeamPlayer.all()
         tp.filter("uri_id = ", (uri_id))
         m = tp.fetch(2)
         if len(m) == 1:
+            memcache.add("tp" + uri_id, m[0])
             return m[0]
         else:
             return None
@@ -88,6 +108,12 @@ class Game(db.Model):
     end = db.DateTimeProperty(required=True)
     team = db.ReferenceProperty(Team, required=True)
     info = db.StringProperty()
+
+    def hash(self, m):
+        m.update(str(self.start))
+        m.update(str(self.end))
+        m.update(str(self.team.key()))
+        m.update(self.info)
 
 class GameResponse(db.Model):
     when = db.DateTimeProperty(auto_now=True)

@@ -8,6 +8,10 @@ from datetime import datetime, timedelta
 import json
 from models import models
 
+from google.appengine.api import memcache
+
+from hashlib import md5
+
 class TeamHandler(webapp2.RequestHandler):
     def json_err(self, status=-1, ctx=""):
         self.response.out.write(json.dumps(
@@ -18,6 +22,9 @@ class TeamHandler(webapp2.RequestHandler):
         tp = models.TeamPlayer.find_by_uri_id(team_id)
         if not tp or team_name != tp.team.name:
             return self.json_err()
+
+        plcc = "tp_%s_%s" % (tp.team.key(), tp.player.key())
+        memcache.delete(plcc)
 
         try:
             game = models.Game.get_by_id(int(self.request.POST['id']))
@@ -82,13 +89,14 @@ class TeamHandler(webapp2.RequestHandler):
             self.response.out.write("Invalid link.")
             return
 
-        token = team_id
-
+        now = datetime.now()
         games = models.Game.all()
         games.filter("team = ", tp.team)
+        games.filter("start >= ", now)
         games.order("start")
         gamedates = []
 
+        m = md5()
         for game in games:
             st = tz.from_utc(game.start)
             val = st.strftime("%a, %b ") + str(st.day)
@@ -99,19 +107,36 @@ class TeamHandler(webapp2.RequestHandler):
             if (len(game.info) > 0):
                 g["i"] = game.info
             gamedates.append(g)
+            game.hash(m)
+        md = m.digest()
 
+        num_games = len(gamedates)
         girls = []
         guys = []
         first = True
         for pk in tp.team.players:
-            pl = models.Player.get(pk)
+            pl = models.Player.find_by_key(pk)
             if pk == tp.player.key():
                 active = True
             else:
                 active = False
 
+            plcc = "tp_%s_%s" % (tp.team.key(), pk)
+            pr = memcache.get(plcc)
+            if pr != None:
+                if not pr.has_key("md") or pr["md"] != md:
+                    memcache.delete(plcc)
+                else:
+                    pr["active"] = active
+                    if pr.has_key("male") and pr["male"]:
+                        guys.append(pr)
+                    else:
+                        girls.append(pr)
+                    continue
+
             games = models.Game.all()
             games.filter("team = ", tp.team)
+            games.filter("start >= ", now)
             games.order("start")
 
             row = {
@@ -142,6 +167,8 @@ class TeamHandler(webapp2.RequestHandler):
                 guys.append(row)
             else:
                 girls.append(row)
+            row["md"] = md
+            memcache.set(plcc, row)
 
 
         path = config.view_path("team.html")
@@ -152,6 +179,5 @@ class TeamHandler(webapp2.RequestHandler):
                 "games": gamedates,
                 "players": girls + guys,
                 "spares": tp.team.spares,
-                "token": token,
             }))
         )

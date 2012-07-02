@@ -1,0 +1,20 @@
+.sprite-alert{ background-position: 0 0; width: 16px; height: 16px; }
+.sprite-arrow-left{ background-position: 0 -34px; width: 16px; height: 16px; }
+.sprite-arrow-right{ background-position: 0 -68px; width: 16px; height: 16px; }
+.sprite-chat{ background-position: 0 -102px; width: 16px; height: 16px; }
+.sprite-correct{ background-position: 0 -136px; width: 16px; height: 16px; }
+.sprite-ellipsis{ background-position: 0 -170px; width: 16px; height: 16px; }
+.sprite-email{ background-position: 0 -204px; width: 16px; height: 16px; }
+.sprite-question{ background-position: 0 -238px; width: 16px; height: 16px; }
+.sprite-settings{ background-position: 0 -272px; width: 16px; height: 16px; }
+.sprite-user{ background-position: 0 -306px; width: 16px; height: 16px; }
+.sprite-wrong{ background-position: 0 -340px; width: 16px; height: 16px; }
+.sprites {
+    background-image: url(../img/sprites.png);
+    background-color: transparent;
+    background-repeat: no-repeat;
+    width: 16px;
+    height: 16px;
+    margin-left: auto;
+    margin-right: auto;
+}

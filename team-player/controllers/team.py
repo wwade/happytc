@@ -40,6 +40,17 @@ class TeamHandler(webapp2.RequestHandler):
 
         gr_q  = models.GameResponse.all()
         gr_q.filter("game = ", game)
+        gr_q.filter("player = ", tp.player)
+        gmr = gr_q.get()
+        if gmr == None:
+            gmr = models.GameResponse(player=tp.player,
+                                      game=game,
+                                      status=val)
+        gmr.status = val
+        gmr.put()
+
+        gr_q  = models.GameResponse.all()
+        gr_q.filter("game = ", game)
 
         male = {}
         female = {}
@@ -52,17 +63,6 @@ class TeamHandler(webapp2.RequestHandler):
                 if not female.has_key(gr.status):
                     female[gr.status] = 0
                 female[gr.status] = female[gr.status] + 1
-
-        gr_q  = models.GameResponse.all()
-        gr_q.filter("game = ", game)
-        gr_q.filter("player = ", tp.player)
-        gmr = gr_q.get()
-        if gmr == None:
-            gmr = models.GameResponse(player=tp.player,
-                                      game=game,
-                                      status=val)
-        gmr.status = val
-        gmr.put()
 
         upd = datetime.now()
         when = tz.from_utc(upd)
@@ -80,6 +80,7 @@ class TeamHandler(webapp2.RequestHandler):
 
         
     def get(self, team_name, team_id):
+        log = []
         tp = models.TeamPlayer.find_by_uri_id(team_id)
         if not tp:
             self.response.out.write("Invalid link.")
@@ -90,27 +91,49 @@ class TeamHandler(webapp2.RequestHandler):
             return
 
         now = datetime.now()
-        games = models.Game.all()
-        games.filter("team = ", tp.team)
-        games.filter("start >= ", now)
-        games.order("start")
-        gamedates = []
+        th_key = "gd_%s" % tp.team.key()
+        cached = memcache.get(th_key)
+        if cached != None:
+            if now >= cached['until']:
+                memcache.delete(th_key)
+                cached = None
 
-        m = md5()
-        for game in games:
-            st = tz.from_utc(game.start)
-            val = st.strftime("%a, %b ") + str(st.day)
-            g = { 
-                "t": val,
-                "id": game.key().id(),
-            }
-            if (len(game.info) > 0):
-                g["i"] = game.info
-            gamedates.append(g)
-            game.hash(m)
-        md = m.digest()
+        if cached != None:
+            md = cached["md"]
+            gamedates = cached["gd"]
+            log.append("cached gd %s" % th_key)
+        else:
+            games = models.Game.all()
+            games.filter("team = ", tp.team)
+            games.filter("start >= ", now)
+            games.order("start")
+            gamedates = []
+            until = None
 
-        num_games = len(gamedates)
+            m = md5()
+            for game in games:
+                if until == None and game.start > now:
+                    until = game.start
+                st = tz.from_utc(game.start)
+                val = st.strftime("%a, %b ") + str(st.day)
+                g = { 
+                    "t": val,
+                    "id": game.key().id(),
+                }
+                if (len(game.info) > 0):
+                    g["i"] = game.info
+                gamedates.append(g)
+                game.hash(m)
+            md = m.digest()
+            if until != None:
+                obj = {
+                    "until": until,
+                    "md": md,
+                    "gd": gamedates,
+                }
+                age_limit = (until - now)
+                memcache.set(th_key, obj, age_limit.seconds)
+
         girls = []
         guys = []
         first = True
@@ -132,6 +155,7 @@ class TeamHandler(webapp2.RequestHandler):
                         guys.append(pr)
                     else:
                         girls.append(pr)
+                    log.append("cached tp %s" % plcc)
                     continue
 
             games = models.Game.all()
@@ -139,10 +163,15 @@ class TeamHandler(webapp2.RequestHandler):
             games.filter("start >= ", now)
             games.order("start")
 
+            male = pl.is_male()
+            if male:
+                gender = "male"
+            else:
+                gender = "female"
             row = {
                 "obj": pl,
                 "active": active,
-                "male": pl.is_male(),
+                "male": male,
             }
             row_games = []
             idx = 0
@@ -170,7 +199,6 @@ class TeamHandler(webapp2.RequestHandler):
             row["md"] = md
             memcache.set(plcc, row)
 
-
         path = config.view_path("team.html")
         self.response.out.write(
             template.render(path, config.render_default({
@@ -179,5 +207,6 @@ class TeamHandler(webapp2.RequestHandler):
                 "games": gamedates,
                 "players": girls + guys,
                 "spares": tp.team.spares,
+                "log": log,
             }))
         )

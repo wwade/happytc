@@ -1,13 +1,31 @@
 div.gameday {
     font-size: 150%;
+}
+div.gameday, div.gameinfo {
     white-space: nowrap;
+}
+
+div.hide {
+    display: none;
+}
+
+div.mfeach {
+    display: table;
 }
 
 div.mf {
     padding-bottom: 2px;
+    float: left;
 }
-span.mf {
-    margin: auto;
+
+.genderinfo {
+    padding-left: 1.5em;
+    white-space: nowrap;
+    font-size: smaller;
+    font-weight: normal;
+}
+div.genderone {
+    float: none;
 }
 
 #users td, #users th {
@@ -44,9 +62,6 @@ td.active {
 }
 .playericon {
     margin-left: auto;
-}
-.genderinfo {
-    padding-left: 18px;
 }
 
 tr {

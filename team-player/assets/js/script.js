@@ -1,11 +1,66 @@
 var table = [
     { "sp": "sprite-none",  "msg": "awaiting response" },
     { "sp": "sprite-yes",   "msg": "Yes" },
-    { "sp": "sprite-maybe", "msg": "Not sure" },
+    { "sp": "sprite-maybe", "msg": "Maybe" },
     { "sp": "sprite-no",    "msg": "No" },
 ];
-
 var logger;
+
+function count_responses()
+{
+    var pos;
+    var counts = new Object;
+
+    $("#users tr").each(function(row) {
+        var gender;
+        $(this).children("td").each(function(col) {
+            if (col == 0) {
+                if ($(this.childNodes[1]).hasClass("gender-f")) {
+                    gender = "female";
+                } else {
+                    gender = "male";
+                }
+            } else {
+                var st = this.childNodes[0].childNodes[0].value;
+                if (counts[col] === undefined)
+                    counts[col] = new Object;
+                if (counts[col][gender] === undefined)
+                    counts[col][gender] = new Object;
+                if (counts[col][gender][st] === undefined)
+                    counts[col][gender][st] = 0;
+                counts[col][gender][st] += 1;
+            }
+        });
+    });
+
+    $("#users th").each(function(col) {
+        if (col != 0) {
+            counts[col]["id"] = this.id;
+            $(this).children("div.mfeach").each(function(idx) {
+                var cnt;
+                var upd;
+                var pfx;
+                if ($(this.childNodes[0]).hasClass("gender-f")) {
+                    cnt = counts[col]["female"];
+                } else {
+                    cnt = counts[col]["male"];
+                }
+                upd = "";
+                pfx = "";
+                for (var i = 1; i < table.length; i++)
+                {
+                    if (cnt[i] > 0) {
+                        upd += pfx + cnt[i] + " " + table[i]["msg"];
+                        pfx = ", ";
+                    }
+                }
+                if (upd.length == 0)
+                    upd = "no responses";
+                this.childNodes[1].innerHTML = upd;
+            });
+        }
+    });
+}
 
 function get_val(div)
 {
@@ -79,6 +134,7 @@ function change_state(div)
                    $("#error")[0].innerHTML = "";
                }
                set_div(div, val);
+               count_responses();
            }
     );
 }
@@ -106,7 +162,7 @@ function run_init()
     if ('console' in self && 'log' in console)
     {
         logger = function(msg) {
-            // console.log(msg);
+             console.log(msg);
         };
     }
     else
@@ -118,17 +174,15 @@ function run_init()
     {
         if ($(this).hasClass("player"))
         {
-            logger("div.name " + this.attributes["name"]);
             init_div(this);
         }
     });
 
+    count_responses();
+
     $("#activeplayer div").each(function(idx) {
         this.onclick = change_item;
     });
-
-    rows = document.getElementsByTagName("tr");
-    logger(rows.length);
 }
 
 $(document).ready(function() {

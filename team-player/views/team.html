@@ -11,9 +11,13 @@
                         <th id="game{{gm.id}}">
                             <div class="gameday">{{gm.t}}</div>
                             {% if gm.i %}<div class="gameinfo">{{ gm.i }}</div>{% endif %}
-                            <div>
-                                <div class="mf gender gender-m"><div class="genderinfo">abc</div></div>
-                                <div class="mf gender gender-f"><div class="genderinfo">def</span></div>
+                            <div class="mfeach">
+                                <div class="mf gender gender-f"></div>
+                                <div class="genderinfo"></div>
+                            </div>
+                            <div class="mfeach">
+                                <div class="mf gender gender-m"></div>
+                                <div class="genderinfo"></div>
                             </div>
                         </th>
                     {% endfor %}
@@ -35,5 +39,12 @@
             </tbody>
         </table>
         </form>
+    </div>
+    <div class="log">
+    <ol>
+    {% for ll in log %}
+        <li>{{ll}}</li>
+    {% endfor %}
+    </ol>
     </div>
 {% endblock %}

@@ -217,8 +217,6 @@ class TeamHandler(webapp2.RequestHandler):
             row["md"] = md
             memcache.set(plcc, row)
 
-        path = config.view_path("team.html")
-
         not_all = self.request.path
         if show_all:
             if self.debug:
@@ -230,7 +228,8 @@ class TeamHandler(webapp2.RequestHandler):
                 not_all = not_all + "?debug&all"
             else:
                 not_all = not_all + "?all"
-
+       
+        path = config.view_path("team.html")
         self.response.out.write(
             template.render(path, config.render_default({
                 "title2": "Game Schedule (%s)" % tp.player.name,
@@ -242,5 +241,8 @@ class TeamHandler(webapp2.RequestHandler):
                 "url": self.request.url,
                 "path": not_all,
                 "all": show_all,
+                "team_name": team_name,
+                "team_id": team_id,
+                "is_owner": tp.player.key() == tp.team.owner.key(),
             }))
         )

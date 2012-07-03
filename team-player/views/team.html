@@ -14,7 +14,13 @@
                     <th></th>
                     {% for gm in games %}
                         <th id="game{{gm.id}}">
-                            <div class="gameday">{{gm.t}}</div>
+                            <div class="gameday">
+                            {% if is_owner %}
+                                <a title="Edit game information" href="/game/{{team_name}}/{{team_id}}/{{gm.id}}">{{gm.t}}</a>
+                            {% else %}
+                                {{gm.t}}
+                            {% endif %}
+                            </div>
                             {% if gm.i %}<div class="gameinfo">{{ gm.i }}</div>{% endif %}
                             <div class="mfeach">
                                 <div class="mf gender gender-f"></div>

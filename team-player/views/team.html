@@ -2,6 +2,11 @@
 
 {% block content %}
     <div class="team-schedule">
+        {% if not all %}
+        <div><a href="{{path}}">Show all games</a></div>
+        {% else %}
+        <div><a href="{{path}}">Show fewer games</a></div>
+        {% endif %}
         <form>
         <table id="users">
             <tbody>

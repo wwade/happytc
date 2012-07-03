@@ -23,8 +23,9 @@ class TeamHandler(webapp2.RequestHandler):
         if not tp or team_name != tp.team.name:
             return self.json_err()
 
-        plcc = "tp_%s_%s" % (tp.team.key(), tp.player.key())
-        memcache.delete(plcc)
+        for idx in [0,1]:
+            plcc = "tp%d_%s_%s" % (idx, tp.team.key(), tp.player.key())
+            memcache.delete(plcc)
 
         try:
             game = models.Game.get_by_id(int(self.request.POST['id']))
@@ -79,7 +80,7 @@ class TeamHandler(webapp2.RequestHandler):
         self.response.out.write(json.dumps(resp))
 
     def do_log(self, msg):
-        if False:
+        if self.debug:
             self.log.append(msg)
 
     def get(self, team_name, team_id):
@@ -93,17 +94,30 @@ class TeamHandler(webapp2.RequestHandler):
             self.response.out.write("Invalid link.")
             return
 
+        if self.request.GET.has_key("all"):
+            show_all = True
+        else:
+            show_all = False
+
+        if self.request.GET.has_key("debug"):
+            self.debug = True
+        else:
+            self.debug = False
+
         now = datetime.now()
-        th_key = "gd_%s" % tp.team.key()
+        th_key = "gd%d_%s" % (show_all, tp.team.key())
         cached = memcache.get(th_key)
         if cached != None:
             if now >= cached['until']:
                 memcache.delete(th_key)
                 cached = None
 
+        show_games = None
+
         if cached != None:
             md = cached["md"]
             gamedates = cached["gd"]
+            show_games = cached["sg"]
             self.do_log("cached gd %s" % th_key)
         else:
             games = models.Game.all()
@@ -113,8 +127,13 @@ class TeamHandler(webapp2.RequestHandler):
             gamedates = []
             until = None
 
+            if show_all:
+                show_games = games
+            else:
+                show_games = games.fetch(6)
+
             m = md5()
-            for game in games:
+            for game in show_games:
                 if until == None and game.start > now:
                     until = game.start
                 st = tz.from_utc(game.start)
@@ -133,6 +152,7 @@ class TeamHandler(webapp2.RequestHandler):
                     "until": until,
                     "md": md,
                     "gd": gamedates,
+                    "sg": show_games,
                 }
                 age_limit = (until - now)
                 memcache.set(th_key, obj, age_limit.seconds)
@@ -147,7 +167,7 @@ class TeamHandler(webapp2.RequestHandler):
             else:
                 active = False
 
-            plcc = "tp_%s_%s" % (tp.team.key(), pk)
+            plcc = "tp%d_%s_%s" % (show_all, tp.team.key(), pk)
             pr = memcache.get(plcc)
             if pr != None:
                 if not pr.has_key("md") or pr["md"] != md:
@@ -161,11 +181,6 @@ class TeamHandler(webapp2.RequestHandler):
                     self.do_log("cached tp %s" % plcc)
                     continue
 
-            games = models.Game.all()
-            games.filter("team = ", tp.team)
-            games.filter("start >= ", now)
-            games.order("start")
-
             male = pl.is_male()
             if male:
                 gender = "male"
@@ -178,7 +193,7 @@ class TeamHandler(webapp2.RequestHandler):
             }
             row_games = []
             idx = 0
-            for game in games:
+            for game in show_games:
                 gr = models.GameResponse.all()
                 gr.filter("player = ", pl)
                 gr.filter("game = ", game)
@@ -203,6 +218,19 @@ class TeamHandler(webapp2.RequestHandler):
             memcache.set(plcc, row)
 
         path = config.view_path("team.html")
+
+        not_all = self.request.path
+        if show_all:
+            if self.debug:
+                not_all = not_all + "?debug"
+            else:
+                not_all = not_all + "?all"
+        else:
+            if self.debug:
+                not_all = not_all + "?debug&all"
+            else:
+                not_all = not_all + "?all"
+
         self.response.out.write(
             template.render(path, config.render_default({
                 "title2": "Game Schedule (%s)" % tp.player.name,
@@ -211,5 +239,8 @@ class TeamHandler(webapp2.RequestHandler):
                 "players": girls + guys,
                 "spares": tp.team.spares,
                 "log": self.log,
+                "url": self.request.url,
+                "path": not_all,
+                "all": show_all,
             }))
         )

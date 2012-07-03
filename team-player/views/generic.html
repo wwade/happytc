@@ -12,7 +12,6 @@
 <div id="page">
 	<div id="header">
         {% if team %}<h1>{{team}}</h1>{% endif %}
-        <div style="float:right"><a href="{{logout_url}}">Logout</a></div>
         <h2>{{title2}}</h2>
         <h2><div id="error" class="error"></div></h2>
 	</div>
@@ -21,7 +20,10 @@
     </div>
 </div>
 
-<p id="footer">{{year}} &copy; {{title}}</p>
+{% if logout_url %}
+<div><a href="{{logout_url}}">Logout</a></div>
+{% endif %}
+<div><p id="footer">{{year}} &copy; {{title}}</p></div>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
 <script src="/assets/js/script.js"></script>

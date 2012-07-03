@@ -24,12 +24,18 @@ searchString	= "Google"
 def render_default(d_in=None):
     if d_in == None:
         d_in = {}
+
     mapper = {
         "title"	: scriptTitle,
         "year"	: datetime.now().strftime("%Y"),
         "domain": fetchURL.replace('http://','').replace('/',''),
-        "logout_url": users.create_logout_url("/"),
     }
+    if users.get_current_user():
+        if d_in.has_key("url"):
+            mapper["logout_url"] = users.create_logout_url(d_in["url"])
+        else:
+            mapper["logout_url"] = users.create_logout_url("/")
+
     for k in mapper.keys():
         if not d_in.has_key(k):
             d_in[k] = mapper[k]

@@ -78,9 +78,12 @@ class TeamHandler(webapp2.RequestHandler):
         }
         self.response.out.write(json.dumps(resp))
 
-        
+    def do_log(self, msg):
+        if False:
+            self.log.append(msg)
+
     def get(self, team_name, team_id):
-        log = []
+        self.log = []
         tp = models.TeamPlayer.find_by_uri_id(team_id)
         if not tp:
             self.response.out.write("Invalid link.")
@@ -101,7 +104,7 @@ class TeamHandler(webapp2.RequestHandler):
         if cached != None:
             md = cached["md"]
             gamedates = cached["gd"]
-            log.append("cached gd %s" % th_key)
+            self.do_log("cached gd %s" % th_key)
         else:
             games = models.Game.all()
             games.filter("team = ", tp.team)
@@ -155,7 +158,7 @@ class TeamHandler(webapp2.RequestHandler):
                         guys.append(pr)
                     else:
                         girls.append(pr)
-                    log.append("cached tp %s" % plcc)
+                    self.do_log("cached tp %s" % plcc)
                     continue
 
             games = models.Game.all()
@@ -207,6 +210,6 @@ class TeamHandler(webapp2.RequestHandler):
                 "games": gamedates,
                 "players": girls + guys,
                 "spares": tp.team.spares,
-                "log": log,
+                "log": self.log,
             }))
         )

@@ -40,11 +40,13 @@
         </table>
         </form>
     </div>
-    <div class="log">
-    <ol>
-    {% for ll in log %}
-        <li>{{ll}}</li>
-    {% endfor %}
-    </ol>
-    </div>
+    {% if log %}
+        <div class="log">
+        <ol>
+        {% for ll in log %}
+            <li>{{ll}}</li>
+        {% endfor %}
+        </ol>
+        </div>
+    {% endif %}
 {% endblock %}
